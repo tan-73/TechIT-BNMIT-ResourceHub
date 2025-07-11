@@ -2,6 +2,12 @@
 
 import streamlit as st
 import requests
+import os
+
+BASE_URL = os.getenv("BACKEND_URL", "http://localhost:5000")
+BACKEND_URL = f"{BASE_URL}/contribute"
+METADATA_API = f"{BASE_URL}/resources/metadata"
+
 
 st.set_page_config(page_title="📤 Contribute to ResourceHub", layout="wide")
 
@@ -16,8 +22,8 @@ Welcome! Upload your academic resources here.
 """)
 
 # 🔽 Set your backend endpoint here
-BACKEND_URL = "http://localhost:5000/contribute"
-METADATA_API = "http://localhost:5000/resources/metadata"
+# BACKEND_URL = "http://localhost:5000/contribute"
+# METADATA_API = "http://localhost:5000/resources/metadata"
 
 # 🔍 Fetch metadata from backend
 try:
