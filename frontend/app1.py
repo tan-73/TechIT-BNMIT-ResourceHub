@@ -3,9 +3,10 @@
 import streamlit as st
 import requests
 import os
-BACKEND_URL = os.getenv("BACKEND_URL")
+from dotenv import load_dotenv
+# BACKEND_URL = os.getenv("BACKEND_URL")
 
-# BACKEND_URL = "http://localhost:5000"  # Update this for deployment
+BACKEND_URL = "http://localhost:5000"  # Update this for deployment
 # BACKEND_URL = "https://techit-bnmit-resourcehub.onrender.com"
 
 st.set_page_config(page_title="TechIT ResourceHub", layout="wide")

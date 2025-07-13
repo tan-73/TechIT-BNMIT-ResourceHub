@@ -9,9 +9,10 @@ from db.models import Resource
 GITHUB_API = "https://api.github.com"
 GITHUB_REPO = "TechIT-Community/TechIT-BNMIT-ResourceHub"
 
-def run_github_sync():
+def run_github_sync(start_path="CSE", branch="streamlit-local-backup"):
     token = Config.GITHUB_TOKEN
     if not token:
+        print("[ERROR] GitHub token not configured")
         raise Exception("GitHub token not configured")
 
     headers = {
@@ -21,24 +22,37 @@ def run_github_sync():
 
     session = SessionLocal()
 
-    def recurse_contents(path, branch="main"):
+    def recurse_contents(path, branch=branch):
         url = f"{GITHUB_API}/repos/{GITHUB_REPO}/contents/{path}?ref={branch}"
+        print(f"[INFO] Fetching: {url}")
         res = requests.get(url, headers=headers)
+
         if res.status_code != 200:
+            print(f"[WARNING] GitHub API failed: {res.status_code} - {res.text}")
             return
 
         for item in res.json():
             if item["type"] == "file":
+                print(f"[INFO] Found file: {item['path']}")
                 parts = item["path"].split("/")
-                if len(parts) < 4:
+
+                # Handle standard path or fallback to "misc"
+                if len(parts) >= 4:
+                    department, semester, subject, file_type = parts[:4]
+                elif len(parts) == 3:
+                    department, semester, subject = parts
+                    file_type = "misc"
+                else:
+                    print(f"[SKIP] Skipping due to short path: {item['path']}")
                     continue
-                department, semester, subject, file_type = parts[:4]
+
                 title = parts[-1]
                 link = item["html_url"]
 
-                # Check for duplicates
+                # Check if already in DB
                 existing = session.query(Resource).filter_by(link=link).first()
                 if existing:
+                    print(f"[SKIP] Already in DB: {title}")
                     continue
 
                 resource = Resource(
@@ -50,10 +64,19 @@ def run_github_sync():
                     source="github",
                     link=link
                 )
+                print(f"[ADD] Adding: {title}")
                 session.add(resource)
+
             elif item["type"] == "dir":
                 recurse_contents(item["path"], branch)
 
-    recurse_contents("")
-    session.commit()
-    session.close()
+    try:
+        print("[START] GitHub sync started")
+        recurse_contents(start_path)
+        session.commit()
+        print("[SUCCESS] All changes committed to DB.")
+    except Exception as e:
+        session.rollback()
+        print(f"[ERROR] Commit failed: {e}")
+    finally:
+        session.close()
