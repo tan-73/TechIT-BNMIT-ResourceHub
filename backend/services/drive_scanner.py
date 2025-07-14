@@ -1,6 +1,5 @@
-# backend/services/drive_scanner.py
-
 import os
+import json
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -17,8 +16,18 @@ def authenticate_drive():
         if os.path.exists('token.json'):
             creds = Credentials.from_authorized_user_file('token.json', SCOPES)
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(Config.GOOGLE_CREDENTIALS_PATH, SCOPES)
+            credentials_json_str = os.getenv("GOOGLE_CREDENTIALS_PATH")
+            if not credentials_json_str:
+                raise Exception("Missing GOOGLE_CREDENTIALS_PATH env var")
+
+            try:
+                credentials_dict = json.loads(credentials_json_str)
+            except json.JSONDecodeError:
+                raise Exception("Invalid GOOGLE_CREDENTIALS_PATH JSON")
+
+            flow = InstalledAppFlow.from_client_config(credentials_dict, SCOPES)
             creds = flow.run_local_server(port=0)
+
             with open('token.json', 'w') as token:
                 token.write(creds.to_json())
     except Exception as e:
