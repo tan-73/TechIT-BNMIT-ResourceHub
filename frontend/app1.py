@@ -13,7 +13,7 @@ st.set_page_config(page_title="TechIT ResourceHub", layout="wide")
 
 st.title("📚 TechIT ResourceHub")
 st.markdown("Search, sort, and filter all files and folders across GitHub and Google Drive.")
-st.write("Using backend:", BACKEND_URL)
+st.markdown("Using backend:", BACKEND_URL)
 
 
 # 🔁 Sync Buttons
