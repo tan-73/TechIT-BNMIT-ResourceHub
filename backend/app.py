@@ -7,9 +7,8 @@ from db import models  # ✅ Ensure models are loaded before DB use
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # ✅ Enable CORS for frontend-backend interaction (e.g., Streamlit)
 
-app = Flask(__name__)
 app.config.from_object(Config)
 register_routes(app)
 
