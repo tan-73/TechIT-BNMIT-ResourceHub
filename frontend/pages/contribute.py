@@ -4,7 +4,8 @@ import streamlit as st
 import requests
 import os
 
-BASE_URL = os.getenv("BACKEND_URL", "http://localhost:5000")
+# BASE_URL = os.getenv("BACKEND_URL", "http://localhost:5000")
+BASE_URL = os.getenv("BACKEND_URL", "https://techit-bnmit-resourcehub.onrender.com")
 BACKEND_URL = f"{BASE_URL}/contribute"
 METADATA_API = f"{BASE_URL}/resources/metadata"
 
